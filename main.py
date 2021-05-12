@@ -33,7 +33,7 @@ if __name__ == '__main__':
     blob = bucket.get_blob(sourcefile.filePath +
                            sourcefile.fileName + sourcefile.fileType)
 
-    FileHandler.handlefile(sourcefile, blob)
+    logging.debug(FileHandler.handlefile(sourcefile, blob))
 
     logging.info("File Name:", sourcefile.fileName + sourcefile.fileType, "\nFile Time:", sourcefile.fileDate,
                  "\nFile Path:", sourcefile.filePath, "\nBucket Name:", sourcefile.bucketName, "\nDestination File:", sourcefile.destPath)
