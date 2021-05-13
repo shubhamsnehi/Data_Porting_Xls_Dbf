@@ -17,4 +17,3 @@ class BucketConfig:
             return bucket
         except Exception as e:
             self.awacslogger.logger.error("Unable to connect bucket :" + e)
-        return

@@ -34,14 +34,14 @@ class Parser:
         self.__df = df
 
     def saveConvertedFile(self, sourcefile) -> None:
-        if not os.path.exists(sourcefile.destPath):
-            os.makedirs(sourcefile.destPath)
+        if not os.path.exists('.' + sourcefile.destPath):
+            os.makedirs('.' + sourcefile.destPath)
             self.awacslogger.logger.info(
                 "Destinaton directory created :/" + sourcefile.destPath)
         self.__df.to_csv('.' + sourcefile.destPath + '/' +
-                         sourcefile.destFile , '|',  index=False)
+                         sourcefile.destFile, '|',  index=False)
         self.awacslogger.logger.info(
-            "Ported file saved at : ./" + sourcefile.destPath + "/" + sourcefile.destFile)
+            "Ported file saved at : ." + sourcefile.destPath + "/" + sourcefile.destFile)
 
     def deleteTempFile(self, path) -> None:
         if os.path.exists(path):
@@ -111,16 +111,22 @@ def handlefile(awacslogger, sourcefile, blob) -> None:
         awacslogger.logger.info(
             sourcefile.fileType + " File type Identified: " + sourcefile.fileName + sourcefile.fileType)
         parser = DBF(awacslogger, sourcefile.fileName)
+    else:
+        parser = None
+        awacslogger.logger.error("File not found")
 
-    # Director object
-    director = Director(awacslogger)
+    if parser == None:
+        return
+    else:
+        # Director object
+        director = Director(awacslogger)
 
-    # Build Parser
-    awacslogger.logger.info("File porting initialized: " +
-                            sourcefile.fileName + sourcefile.fileType)
-    director.setBuilder(parser)  # Setting type of builder
-    convert = director.parseFile(blob, sourcefile)  # Parse method call
-    convert.saveConvertedFile(sourcefile)  # Saving parsed file
-    convert.deleteTempFile(
-        './TempFiles/' + sourcefile.fileName + sourcefile.fileType)  # Deleting temp file if created
-    print("")
+        # Build Parser
+        awacslogger.logger.info("File porting initialized: " +
+                                sourcefile.fileName + sourcefile.fileType)
+        director.setBuilder(parser)  # Setting type of builder
+        convert = director.parseFile(blob, sourcefile)  # Parse method call
+        convert.saveConvertedFile(sourcefile)  # Saving parsed file
+        convert.deleteTempFile(
+            './TempFiles/' + sourcefile.fileName + sourcefile.fileType)  # Deleting temp file if created
+        print("")

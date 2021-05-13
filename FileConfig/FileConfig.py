@@ -80,6 +80,8 @@ class FileConfig:
 
     @destpath.setter
     def destpath(self, path):
+        if path == '/':
+            self.awacslogger.logger.warn("Destination is blank, file will save in pwd !")
         pathstr = path.split('/')
         self.destFile = pathstr[len(pathstr) - 1]
         if os.path.splitext(self.destFile)[1]:
@@ -103,12 +105,21 @@ class FileConfig:
 
     # Set Config
     def setConfig(self, args):
-        self.filepath = args.filePath
-        self.destpath = args.destPath
+        if args.filePath == None or args.destPath == None:
+            self.awacslogger.logger.error("Invalid arguments!")
+        else:
+            self.filepath = args.filePath
+            self.destpath = args.destPath
 
-        # Bucket Connection
-        bucketcon = BucketCon.BucketConfig(self.awacslogger)
-        bucket = bucketcon.getbucketconn(self.bucketName)
-        blob = bucket.get_blob(self.filePath +
-                               self.fileName + self.fileType)
-        return blob
+            self.awacslogger.logger.info("File Details -- File Name:" + self.fileName + self.fileType + "  File Path:" +
+                            self.filePath + "  Bucket Name:" + self.bucketName + "  Destination File:" + self.destPath)
+
+            # Bucket Connection
+            try:
+                bucketcon = BucketCon.BucketConfig(self.awacslogger)
+                bucket = bucketcon.getbucketconn(self.bucketName)
+                blob = bucket.get_blob(self.filePath +
+                                    self.fileName + self.fileType)
+                return blob
+            except Exception as e:
+                self.awacslogger.logger.error("Failed to connect Bucket" + e)
