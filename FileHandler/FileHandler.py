@@ -1,28 +1,31 @@
 import os
 import pandas as pd
 from simpledbf import Dbf5
-import logging
 
 
 # Director class handles builder
 class Director:
     __builder = None
 
+    def __init__(self, awacslogger) -> None:
+        self.awacslogger = awacslogger
+
     def setBuilder(self, builder):
         self.__builder = builder
 
     def parseFile(self, blob, sourcefile):
-        parse = Parser() # Parser object
+        parse = Parser(self.awacslogger)  # Parser object
         df = self.__builder.convert(blob)
         parse.convertedFile(df)
-        logging.info("File conversion Done : ", sourcefile.fileName)
+        self.awacslogger.logger.info("File conversion Done : "+ sourcefile.fileName + sourcefile.fileType)
         return parse
 
 
 # Parse File
 class Parser:
-    def __init__(self):
+    def __init__(self, awacslogger):
         self.__df = None
+        self.awacslogger = awacslogger
 
     def convertedFile(self, df):
         self.__df = df
@@ -30,40 +33,46 @@ class Parser:
     def saveConvertedFile(self, sourcefile):
         if not os.path.exists(sourcefile.destPath):
             os.makedirs(sourcefile.destPath)
-            logging.info("Destinaton directory created.")
+            self.awacslogger.logger.info("Destinaton directory created :/" + sourcefile.destPath)
         self.__df.to_csv('./' + sourcefile.destPath + '/' +
                          sourcefile.fileName + '.csv', '|',  index=False)
-        logging.info("Ported file saved at : ", './' + sourcefile.destPath + '/' +
-                     sourcefile.fileName + '.csv')
+        self.awacslogger.logger.info("Ported file saved at : ./" + sourcefile.destPath + "/" +
+                                sourcefile.fileName + ".csv")
 
     def deleteTempFile(self, path):
         if os.path.exists(path):
             try:
                 os.remove(path)
-                logging.info("Temp file deleted at : ", path)
+                self.awacslogger.logger.info("Temp file deleted at : ", path)
             except:
-                logging.error("Can't delete file at : ", path)
+                self.awacslogger.logger.error("Can't delete file at : ", path)
 
 
+# Builder Class
 class Builder:
     def convert(self): pass
+
 
 # XLS builder classs
 class XLS(Builder):
 
+    def __init__(self, awacslogger) -> None:
+        self.awacslogger = awacslogger
+
     def convert(self, blob):
         try:
             df = pd.DataFrame(pd.read_excel(blob.download_as_bytes()))
-            logging.info("Data ported form '.xls' to '.csv")
+            self.awacslogger.logger.info("Data ported form '.xls' to '.csv'")
             return df
         except:
-            logging.error("Data porting for .xls or .xlsx failed")
+            self.awacslogger.logger.error("Data porting for .xls or .xlsx failed")
 
 
 # DBF builder class
 class DBF(Builder):
 
-    def __init__(self, tempFile) -> None:
+    def __init__(self, awacslogger, tempFile) -> None:
+        self.awacslogger = awacslogger
         self.__tempfile = tempFile
 
     def convert(self, blob):
@@ -72,26 +81,26 @@ class DBF(Builder):
                 './TempFiles/' + self.__tempfile + '.DBF')
             dbf = Dbf5('./TempFiles/' + self.__tempfile +
                        '.DBF', codec='utf-8')
-            logging.info("Data ported from '.dbf' to '.csv'")
+            self.awacslogger.logger.info("Data ported from '.dbf' to '.csv'")
             df = dbf.to_dataframe()
             return df
         except:
-            logging.error("Data porting for .dbf failed")
+            self.awacslogger.logger.error("Data porting for .dbf failed")
 
 
 # Parser handle function
-def handlefile(sourcefile, blob):
+def handlefile(awacslogger, sourcefile, blob):
     if sourcefile.fileType == '.xlsx' or sourcefile.fileType == '.xls':
-        logging.info("File type Identified")
-        parser = XLS()  # initializing the class
+        awacslogger.logger.info(sourcefile.fileType + " File type Identified: " + sourcefile.fileName + sourcefile.fileType)
+        parser = XLS(awacslogger)  # initializing the class
     elif sourcefile.fileType == '.DBF' or sourcefile.fileType == '.dbf':
-        logging.info("File type Identified")
-        parser = DBF(sourcefile.fileName)
+        awacslogger.logger.info(sourcefile.fileType + " File type Identified: " + sourcefile.fileName + sourcefile.fileType)
+        parser = DBF(awacslogger, sourcefile.fileName)
 
-    director = Director()
+    director = Director(awacslogger)
 
     # Build Parser
-    logging.info("File porting initialized")
+    awacslogger.logger.info("File porting initialized: " + sourcefile.fileName + sourcefile.fileType)
     director.setBuilder(parser)
     convert = director.parseFile(blob, sourcefile)
     convert.saveConvertedFile(sourcefile)

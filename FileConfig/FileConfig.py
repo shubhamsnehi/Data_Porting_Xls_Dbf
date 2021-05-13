@@ -1,17 +1,18 @@
-import logging
 import os.path
 from datetime import datetime
+from BucketHandler import BucketCon
 
 
 class FileConfig:
 
-    def __init__(self):
+    def __init__(self, awacslogger):
         self.filePath = None
         self.fileName = None
         self.fileDate = datetime.now()
         self.fileType = None
         self.bucketName = None
         self.destPath = None
+        self.awacslogger = awacslogger
 
     # Properties, Getters and Setters
     # File Path
@@ -31,7 +32,7 @@ class FileConfig:
             else:
                 self.filePath = ''
         except:
-            logging.error("File path argument incorrect")
+            self.awacslogger.logger.error("File path argument incorrect")
 
     # File Name
     @property
@@ -85,3 +86,10 @@ class FileConfig:
     def setConfig(self, args):
         self.filepath = args.filePath
         self.destpath = args.destPath
+
+        # Bucket Connection
+        bucketcon = BucketCon.BucketConfig(self.awacslogger)
+        bucket = bucketcon.getbucketconn(self.bucketName)
+        blob = bucket.get_blob(self.filePath +
+                               self.fileName + self.fileType)
+        return blob
