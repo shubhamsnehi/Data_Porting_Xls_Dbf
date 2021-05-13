@@ -38,10 +38,10 @@ class Parser:
             os.makedirs(sourcefile.destPath)
             self.awacslogger.logger.info(
                 "Destinaton directory created :/" + sourcefile.destPath)
-        self.__df.to_csv('./' + sourcefile.destPath + '/' +
-                         sourcefile.fileName + '.csv', '|',  index=False)
-        self.awacslogger.logger.info("Ported file saved at : ./" + sourcefile.destPath + "/" +
-                                     sourcefile.fileName + ".csv")
+        self.__df.to_csv('.' + sourcefile.destPath + '/' +
+                         sourcefile.destFile , '|',  index=False)
+        self.awacslogger.logger.info(
+            "Ported file saved at : ./" + sourcefile.destPath + "/" + sourcefile.destFile)
 
     def deleteTempFile(self, path) -> None:
         if os.path.exists(path):
@@ -70,7 +70,8 @@ class XLS(Builder):
     def convert(self, blob):
         try:
             df = pd.DataFrame(pd.read_excel(blob.download_as_bytes()))
-            self.awacslogger.logger.info("Data ported form '.xls' to '.csv' : " )
+            self.awacslogger.logger.info(
+                "Data ported form '.xls' to '.csv' : ")
             return df
         except Exception as e:
             self.awacslogger.logger.error(

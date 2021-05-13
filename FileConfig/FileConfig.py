@@ -80,7 +80,26 @@ class FileConfig:
 
     @destpath.setter
     def destpath(self, path):
-        self.destPath = path
+        pathstr = path.split('/')
+        self.destFile = pathstr[len(pathstr) - 1]
+        if os.path.splitext(self.destFile)[1]:
+            # add '/'
+            if pathstr[len(pathstr) - 1] == '':
+                self.destPath = '/'.join(pathstr[0:len(pathstr) - 1])
+            else:
+                self.destPath = '/'.join(pathstr[0:len(pathstr) - 1])
+            if os.path.splitext(self.destFile)[1] == '.csv':
+                self.destFile = pathstr[len(pathstr) - 1]
+            else:
+                self.awacslogger.logger.error(
+                    "Invalid destination file name: " + path)
+        # add '/'
+        else:
+            if pathstr[len(pathstr) - 1] == '':
+                self.destPath = '/'.join(pathstr[0:len(pathstr) - 1])
+            else:
+                self.destPath = '/'.join(pathstr[0:len(pathstr)])
+            self.destFile = self.fileName + '.csv'
 
     # Set Config
     def setConfig(self, args):
