@@ -15,6 +15,6 @@ class BucketConfig:
             bucket = self.__storage_client.get_bucket(bucketname)
             self.awacslogger.logger.info("Bucket Connection Successful")
             return bucket
-        except:
-            self.awacslogger.logger.error("Unable to connect bucket")
+        except Exception as e:
+            self.awacslogger.logger.error("Unable to connect bucket :" + e)
         return

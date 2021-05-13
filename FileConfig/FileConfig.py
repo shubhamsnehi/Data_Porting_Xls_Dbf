@@ -31,8 +31,8 @@ class FileConfig:
                 self.filePath = '/'.join(pathstr[1:len(pathstr) - 1]) + '/'
             else:
                 self.filePath = ''
-        except:
-            self.awacslogger.logger.error("File path argument incorrect")
+        except Exception as e:
+            self.awacslogger.logger.error("File path argument incorrect:" + e)
 
     # File Name
     @property
