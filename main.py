@@ -1,8 +1,6 @@
 from FileConfig import FileConfig
-from BucketHandler import BucketCon
 from FileHandler import FileHandler
 from AwacsLogger import AwacsLogger
-from google.cloud import storage
 import argparse
 
 
@@ -38,5 +36,5 @@ if __name__ == '__main__':
     awacslogger.logger.info("File Details -- File Name:" + sourcefile.fileName + sourcefile.fileType + "  File Path:" +
                             sourcefile.filePath + "  Bucket Name:" + sourcefile.bucketName + "  Destination File:" + sourcefile.destPath)
 
-# py main.py -p gs://balatestawacs/SampleFiles/AIOCD0923/AIOCD0923_02_2021_511b9d2d-76c3-4e4e-a2a4-35840fc612ce.xls --dpath Tempfiles2
-# py main.py -p gs://balatestawacs/SALE_DTL.DBF --dpath Tempfiles3
+# py main.py -p gs://balatestawacs/SampleFiles/AIOCD0923/AIOCD0923_02_2021_511b9d2d-76c3-4e4e-a2a4-35840fc612ce.xls --dpath /Tempfiles2/pqr.csv
+# py main.py -p gs://balatestawacs/SALE_DTL.DBF --dpath /Tempfiles3/abc.csv
