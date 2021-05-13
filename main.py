@@ -1,4 +1,3 @@
-import AwacsLogger
 from FileConfig import FileConfig
 from BucketHandler import BucketCon
 from FileHandler import FileHandler
