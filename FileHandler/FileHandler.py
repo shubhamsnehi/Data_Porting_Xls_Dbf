@@ -19,7 +19,7 @@ class Director:
         parse = Parser(self.awacslogger)  # Parser object
         df = self.__builder.convert(blob)
         parse.convertedFile(df)
-        self.awacslogger.logger.info(
+        self.awacslogger.info(
             "File conversion Done : " + sourcefile.fileName + sourcefile.fileType)
         return parse
 
@@ -36,20 +36,20 @@ class Parser:
     def saveConvertedFile(self, sourcefile) -> None:
         if not os.path.exists('.' + sourcefile.destPath):
             os.makedirs('.' + sourcefile.destPath)
-            self.awacslogger.logger.info(
-                "Destinaton directory created :/" + sourcefile.destPath)
+            self.awacslogger.info(
+                "Destinaton directory created :" + sourcefile.destPath)
         self.__df.to_csv('.' + sourcefile.destPath + '/' +
                          sourcefile.destFile, '|',  index=False)
-        self.awacslogger.logger.info(
+        self.awacslogger.info(
             "Ported file saved at : ." + sourcefile.destPath + "/" + sourcefile.destFile)
 
     def deleteTempFile(self, path) -> None:
         if os.path.exists(path):
             try:
                 os.remove(path)
-                self.awacslogger.logger.info("Temp file deleted at : " + path)
+                self.awacslogger.info("Temp file deleted at : " + path)
             except Exception as e:
-                self.awacslogger.logger.error(
+                self.awacslogger.error(
                     "Can't delete file at : " + path + e)
 
 
@@ -70,11 +70,11 @@ class XLS(Builder):
     def convert(self, blob):
         try:
             df = pd.DataFrame(pd.read_excel(blob.download_as_bytes()))
-            self.awacslogger.logger.info(
+            self.awacslogger.info(
                 "Data ported form '.xls' to '.csv' : ")
             return df
         except Exception as e:
-            self.awacslogger.logger.error(
+            self.awacslogger.error(
                 "Data porting for .xls or .xlsx failed")
 
 
@@ -92,41 +92,50 @@ class DBF(Builder):
                 './TempFiles/' + self.__tempfile + '.DBF')
             dbf = Dbf5('./TempFiles/' + self.__tempfile +
                        '.DBF', codec='utf-8')
-            self.awacslogger.logger.info("Data ported from '.dbf' to '.csv'")
+            self.awacslogger.info("Data ported from '.dbf' to '.csv'")
             df = dbf.to_dataframe()
             return df
         except Exception as e:
-            self.awacslogger.logger.error("Data porting for .dbf failed:" + e)
+            self.awacslogger.error("Data porting for .dbf failed:" + e)
 
 
 # Parser handle function
-def handlefile(awacslogger, sourcefile, blob) -> None:
 
-    # Identify file type and create desired file type parsing object
-    if sourcefile.fileType == '.xlsx' or sourcefile.fileType == '.xls':
-        awacslogger.logger.info(
-            sourcefile.fileType + " File type Identified: " + sourcefile.fileName + sourcefile.fileType)
-        parser = XLS(awacslogger)  # initializing the class
-    elif sourcefile.fileType == '.DBF' or sourcefile.fileType == '.dbf':
-        awacslogger.logger.info(
-            sourcefile.fileType + " File type Identified: " + sourcefile.fileName + sourcefile.fileType)
-        parser = DBF(awacslogger, sourcefile.fileName)
-    else:
-        parser = None
-        awacslogger.logger.error("File not found")
+class FileParser:
 
-    if parser == None:
-        return
-    else:
-        # Director object
-        director = Director(awacslogger)
+    def __init__(self, awacslogger):
+        self.awacslogger = awacslogger
 
-        # Build Parser
-        awacslogger.logger.info("File porting initialized: " +
-                                sourcefile.fileName + sourcefile.fileType)
-        director.setBuilder(parser)  # Setting type of builder
-        convert = director.parseFile(blob, sourcefile)  # Parse method call
-        convert.saveConvertedFile(sourcefile)  # Saving parsed file
-        convert.deleteTempFile(
-            './TempFiles/' + sourcefile.fileName + sourcefile.fileType)  # Deleting temp file if created
-        print("")
+
+    def convertfile(self, sourcefile, blob) -> None:
+        print("File Details -- File Name:" + sourcefile.fileName + sourcefile.fileType + "  File Path:" +
+                        sourcefile.filePath + "  Bucket Name:" + sourcefile.bucketName + "  Destination File:" + sourcefile.destPath)
+
+        # # Identify file type and create desired file type parsing object
+        # if sourcefile.fileType == '.xlsx' or sourcefile.fileType == '.xls':
+        #     self.awacslogger.info(
+        #         sourcefile.fileType + " File type Identified: " + sourcefile.fileName + sourcefile.fileType)
+        #     parser = XLS(self.awacslogger)  # initializing the class
+        # elif sourcefile.fileType == '.DBF' or sourcefile.fileType == '.dbf':
+        #     self.awacslogger.info(
+        #         sourcefile.fileType + " File type Identified: " + sourcefile.fileName + sourcefile.fileType)
+        #     parser = DBF(self.awacslogger, sourcefile.fileName)
+        # else:
+        #     parser = None
+        #     self.awacslogger.error("File not found")
+
+        # if parser == None:
+        #     return
+        # else:
+        #     # Director object
+        #     director = Director(self.awacslogger)
+
+        #     # Build Parser
+        #     self.awacslogger.info("File porting initialized: " +
+        #                             sourcefile.fileName + sourcefile.fileType)
+        #     director.setBuilder(parser)  # Setting type of builder
+        #     convert = director.parseFile(blob, sourcefile)  # Parse method call
+        #     convert.saveConvertedFile(sourcefile)  # Saving parsed file
+        #     convert.deleteTempFile(
+        #         './TempFiles/' + sourcefile.fileName + sourcefile.fileType)  # Deleting temp file if created
+        #     print("")
