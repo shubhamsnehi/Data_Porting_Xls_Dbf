@@ -1,5 +1,4 @@
 from FileConfig import FileConfig
-from FileHandler import FileHandler
 from AwacsLogger import AwacsLogger
 import argparse
 
